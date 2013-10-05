@@ -129,7 +129,9 @@ int main()
 			exit(0);
 		if(if_pipe != -1)
 		{
-			args[cnt] = NULL;
+			args = (char**)realloc(args,sizeof(char*) * (cnt + 1));
+			args[cnt] = file2;
+			args[cnt + 1] = NULL;
 			if(fork() == 0)
 			{
 				execvp("./mypipe",args);
@@ -162,6 +164,8 @@ int main()
 		}
 		fflush(stdin);
 		fflush(stdout);
+		free(args);
+		args = NULL;
 	}
 	return 0;
 }
