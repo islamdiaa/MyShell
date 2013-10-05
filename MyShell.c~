@@ -1,5 +1,6 @@
 #include<stdio.h>
 #include<sys/types.h>
+//#include<functions.h>
 #include<sys/wait.h>
 #include<sys/stat.h>
 #include<stdlib.h>
