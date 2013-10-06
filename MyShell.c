@@ -58,8 +58,11 @@ char** parse(char* line)
 				for(j = 0 ; word[j] != '\0'; j++)
 					file1[j] = (char)word[j];
 				file1[j] = '\0';
-				args[cnt - 1] = NULL;
-				args[cnt - 2] = NULL;
+				//free(word);
+				free(args[cnt - 1]);
+				free(args[cnt - 2]);
+				//args[cnt - 1] = NULL;
+				//args[cnt - 2] = NULL;
 				cnt -= 2;
 				args = (char**)realloc(args,sizeof(char*) * (cnt));
 			}
@@ -68,10 +71,12 @@ char** parse(char* line)
 				int j;
 				for(j = 0 ; word[j] != '\0'; j++)
 					file2[j] = word[j];
+				//free(word);
 				file2[j] = '\0';
-
-				args[cnt - 1] = NULL;
-				args[cnt - 2] = NULL;
+				free(args[cnt - 1]);
+				free(args[cnt - 2]);
+				//args[cnt - 1] = NULL;
+				//args[cnt - 2] = NULL;
 				cnt -= 2;
 				args = (char**)realloc(args,sizeof(char*) * (cnt));
 			}
@@ -108,6 +113,8 @@ int main()
 		line = get_line(stdin);
 		if(line == NULL || (args = parse(line)) == NULL)
 			continue;
+		
+		free(line);
 		int x = strcmp(args[0],"exit");
 		if(strcmp(file2,"stdout") != 0)
 		{
@@ -127,16 +134,27 @@ int main()
 		}
 		if(x == 0)
 			exit(0);
+		char* File2 = (char*)malloc(sizeof(char) * strlen(file2));	
+		int i;		
+		for(i = 0 ; i < strlen(file2); i++)
+		{
+			File2[i] = file2[i];
+		}
 		if(if_pipe != -1)
 		{
 			args = (char**)realloc(args,sizeof(char*) * (cnt + 1));
-			args[cnt] = file2;
-			args[cnt + 1] = NULL;
+			args[cnt++] = File2;
 			if(fork() == 0)
 			{
+				args[cnt] = NULL;
 				execvp("./mypipe",args);
+				exit(1);
 			}
 			wait(&stat);
+			int i;
+			for(i = 0 ; i < cnt; i++)
+				free(args[i]);
+			free(args);
 			continue;
 		}
 		if(fork() == 0)
@@ -156,6 +174,9 @@ int main()
 			args[cnt] = NULL;
 			execvp(args[0],args);
 			printf("Unknown Command !!\n");
+			for(i = 0 ; i < cnt; i++)
+				free(args[i]);
+			free(args);
 			exit(1);
 		}
 		if(flag == 0)
@@ -164,8 +185,10 @@ int main()
 		}
 		fflush(stdin);
 		fflush(stdout);
+		for(i = 0 ; i < cnt; i++)
+			free(args[i]);
 		free(args);
-		args = NULL;
+		//args = NULL;
 	}
 	return 0;
 }

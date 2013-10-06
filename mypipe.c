@@ -4,6 +4,7 @@
 #include<stdlib.h>
 #include<unistd.h>
 #include<fcntl.h>
+#include<errno.h>
 #include<string.h>
 #define PERMS 0644
 int main(int argc,char **args)
@@ -22,7 +23,7 @@ int main(int argc,char **args)
 	}
 	cnt = i;
 	for(i = 0 ; i < if_pipe; i++)
-	{	
+	{		
 			args1 = (char**)realloc(args1,sizeof(char*) * (cnt1 + 1));
 			args1[cnt1++] = args[i];
 	}		
@@ -43,7 +44,9 @@ int main(int argc,char **args)
 		dup(fd[1]);
 		close(fd[0]);
 		close(fd[1]);
+		args1[cnt1] = NULL;
 		execvp(args1[0],args1);
+		printf("Failed to Exec!!\n");
 		exit(20);
 	}	
 	wait(&stat);
@@ -57,7 +60,7 @@ int main(int argc,char **args)
 		}
 	}
 	if(fd1 != -1)
-	{
+	{	
 		close(1);
 		dup(fd1);
 		close(fd1);
@@ -66,8 +69,14 @@ int main(int argc,char **args)
 		dup(fd[0]);
 		close(fd[0]);
 		close(fd[1]);
+			args2[cnt2] = NULL;
 		execvp(args2[0],args2);
 		exit(20);
-	free(args);	
-	
+	for( i = 0 ; i < cnt1; i++)
+		free(args1[i]);
+	for( i = 0 ; i < cnt2; i++)
+		free(args2[i]);
+	free(args1);
+	free(args2);
+		
 }
